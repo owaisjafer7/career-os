@@ -1,4 +1,6 @@
 streamlit
 pandas
+databricks-sdk
 databricks-sql-connector
-sentence-transformers
+psycopg2-binary
+sqlalchemy
