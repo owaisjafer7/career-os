@@ -1,5 +1,10 @@
 import streamlit as st
-from job_search import semantic_job_search
+from job_search import (
+    semantic_job_search,
+    get_job_market_analytics,
+    get_top_job_markets,
+    get_recent_job_changes,
+)
 from lakebase_actions import (
     get_current_user,
     get_profile,
@@ -505,6 +510,84 @@ with dashboard_tab:
 
         else:
             st.success("No stale applications right now.")
+
+        st.divider()
+        
+        st.subheader("📊 Job Market Activity")
+
+        try:
+            market_analytics = get_job_market_analytics()
+            top_markets = get_top_job_markets(limit=5)
+            recent_changes = get_recent_job_changes(limit=8)
+        except Exception as e:
+            st.warning("Job market analytics are temporarily unavailable.")
+
+            market_analytics = {}
+            top_markets = []
+            recent_changes = []
+
+        analytics_col1, analytics_col2, analytics_col3 = (st.columns(3))
+
+        with analytics_col1:
+            st.metric("🆕 Jobs Captured",market_analytics.get("new_jobs",0),)
+
+        with analytics_col2:
+            st.metric("📍 Active Locations",market_analytics.get("active_locations",0),)
+
+        with analytics_col3:
+            st.metric("🏢 Active Companies",market_analytics.get("active_companies",0),)
+
+        last_refresh = market_analytics.get("last_refresh")
+
+        if last_refresh:
+            st.caption(f"Last job-market refresh: {last_refresh}")
+
+        st.markdown("#### 🌎 Top Job Markets")
+
+        if top_markets:
+            for market in top_markets:
+                location = (market.get("location") or "Unknown Location")
+                new_jobs = market.get("new_jobs",0,)
+
+                st.write(f"**{location}** — {new_jobs:,} new jobs")
+        else:
+            st.info("No job-market analytics available yet.")
+
+        st.markdown("#### ⚡ Recent Job Feed Activity")
+
+        if recent_changes:
+            for change in recent_changes:
+                title = (change.get("title") or "Unknown Job")
+                company = (change.get("company") or "Unknown Company")
+                location = (change.get("location") or "Unknown Location")
+                change_type = (change.get("change_type") or "unknown")
+                timestamp = change.get("commit_timestamp")
+
+                if change_type == "insert":
+                    change_icon = "🟢"
+                    change_label = "New"
+                elif change_type == "update_postimage":
+                    change_icon = "🟡"
+                    change_label = "Updated"
+                elif change_type == "delete":
+                    change_icon = "🔴"
+                    change_label = "Removed"
+                else:
+                    change_icon = "⚪"
+                    change_label = change_type.replace("_"," ").title()
+
+                st.write(f"{change_icon} **{change_label}:** {title} · {company}")
+
+                st.caption(
+                    f"{location}"
+                    + (
+                        f" · {timestamp}"
+                        if timestamp
+                        else ""
+                    )
+                )
+        else:
+            st.info("No recent CDF job activity found.")
 
         st.divider()
 

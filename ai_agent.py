@@ -426,7 +426,30 @@ def execute_tool(tool_name,arguments,):
                 "success": False,
                 "error": "Job posting was not found.",
             }
-    
+
+        profile = get_profile(user_id) or {}
+        skills = get_skills(user_id)
+
+        return {
+            "success": True,
+            "task": "resume_bullets",
+            "bullet_count": int(
+                arguments.get("bullet_count",3,)),
+            "job": {
+                "job_id": str(job.get("job_id")),
+                "title": job.get("title"),
+                "company": job.get("company"),
+                "location": job.get("location"),
+                "description": job.get("description"),
+            },
+            "profile": {
+                "target_role": profile.get("target_role"),
+                "years_experience": profile.get("years_experience"),
+                "resume_text": profile.get("resume_text"),
+                "skills": [skill["skill_name"] for skill in skills if skill.get("skill_name")],
+            },
+        }
+
     if tool_name == "prepare_interview":
         job = get_job_posting(arguments["job_id"])
         if not job:
@@ -449,29 +472,6 @@ def execute_tool(tool_name,arguments,):
                 "description": job.get("description"),
                 },
                 "profile": {"target_role": profile.get("target_role"),
-                "years_experience": profile.get("years_experience"),
-                "resume_text": profile.get("resume_text"),
-                "skills": [skill["skill_name"] for skill in skills if skill.get("skill_name")],
-            },
-        }
-
-        profile = get_profile(user_id) or {}
-        skills = get_skills(user_id)
-
-        return {
-            "success": True,
-            "task": "resume_bullets",
-            "bullet_count": int(
-                arguments.get("bullet_count",3,)),
-            "job": {
-                "job_id": str(job.get("job_id")),
-                "title": job.get("title"),
-                "company": job.get("company"),
-                "location": job.get("location"),
-                "description": job.get("description"),
-            },
-            "profile": {
-                "target_role": profile.get("target_role"),
                 "years_experience": profile.get("years_experience"),
                 "resume_text": profile.get("resume_text"),
                 "skills": [skill["skill_name"] for skill in skills if skill.get("skill_name")],
@@ -613,7 +613,6 @@ def run_career_agent(user_message,conversation=None,):
             )
 
     return {
-        "message": (
-            "CareerOS reached the maximum number of tool actions for this request."),
+        "message": ("CareerOS reached the maximum number of tool actions for this request."),
         "conversation": messages,
     }
