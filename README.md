@@ -7,7 +7,8 @@ semantic retrieval, Lakebase, and agentic AI.**
 
 `Databricks` · `Apache Spark` · `Delta Lake` · `Lakebase` · `Streamlit`
 · `AI Agents` · `Embeddings`
-:::
+
+*Link: https://career-os-7474659615296236.aws.databricksapps.com/*
 
 ------------------------------------------------------------------------
 
