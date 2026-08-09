@@ -1,4 +1,3 @@
-::: {align="center"}
 # 🚀 CareerOS
 
 ### AI Job Hunting Copilot
@@ -1223,7 +1222,6 @@ applicable API terms.
 
 ------------------------------------------------------------------------
 
-::: {align="center"}
 ## 👨‍💻 Author
 
 **Owais Jafer**
