@@ -1,0 +1,147 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    full_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS profiles (
+    profile_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    target_role VARCHAR(255),
+    preferred_location VARCHAR(255),
+    preferred_work_mode VARCHAR(50),
+    salary_min NUMERIC(12, 2),
+    years_experience INTEGER,
+    resume_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS profile_embeddings (
+    user_id BIGINT PRIMARY KEY
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    profile_text TEXT NOT NULL,
+    embedding REAL[] NOT NULL,
+    updated_at TIMESTAMP
+        DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+    skill_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    skill_name VARCHAR(255) NOT NULL,
+    proficiency VARCHAR(50),
+    years_experience NUMERIC(5, 1),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, skill_name)
+);
+
+
+CREATE TABLE IF NOT EXISTS job_postings (
+    id BIGSERIAL PRIMARY KEY,
+    job_id VARCHAR(255) UNIQUE NOT NULL,
+    title VARCHAR(500),
+    company VARCHAR(500),
+    location VARCHAR(500),
+    salary_min NUMERIC(12, 2),
+    salary_max NUMERIC(12, 2),
+    description TEXT,
+    job_url TEXT,
+    source VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS saved_jobs (
+    saved_job_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    job_id VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'saved',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, job_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS applications (
+    application_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    job_id VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'saved',
+    applied_at TIMESTAMP,
+    follow_up_date DATE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, job_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS interview_notes (
+    interview_note_id BIGSERIAL PRIMARY KEY,
+    application_id BIGINT NOT NULL REFERENCES applications(application_id) ON DELETE CASCADE,
+    note_text TEXT NOT NULL,
+    interview_date TIMESTAMP,
+    follow_up_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS contacts (
+    contact_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    company VARCHAR(255),
+    contact_name VARCHAR(255),
+    email VARCHAR(255),
+    linkedin_url TEXT,
+    role VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (
+    email,
+    full_name
+)
+VALUES (
+    'demo@careeros.local',
+    'CareerOS Demo User'
+)
+ON CONFLICT (email) DO NOTHING;
+
+SELECT *
+FROM saved_jobs
+ORDER BY created_at DESC;
+
+SELECT *
+FROM job_postings
+ORDER BY created_at DESC;
+
+SELECT *
+FROM saved_jobs
+ORDER BY created_at DESC;
+
+SELECT *
+FROM users;
+
+SELECT *
+FROM saved_jobs;
+
+ALTER TABLE job_postings
+ADD COLUMN IF NOT EXISTS description TEXT;
+
+SELECT *
+FROM profile_embeddings;
+
+SELECT
+    job_id,
+    title,
+    company,
+    LEFT(description, 500) AS description_preview
+FROM job_postings
+WHERE job_id = '5807055900';

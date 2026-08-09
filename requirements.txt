@@ -1,6 +1,10 @@
 streamlit
-pandas
 databricks-sdk
 databricks-sql-connector
 psycopg2-binary
 sqlalchemy
+requests
+python-dotenv
+numpy
+sentence-transformers
+databricks-openai
